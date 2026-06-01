@@ -1,5 +1,7 @@
 # Setup
 
+TL;DR: deploy `Code.gs` as an Apps Script Web App, set the required Script Properties, then paste the Web App URL with `?secret=...` into Life Dashboard Companion.
+
 ## 1. Samsung Health to Health Connect
 
 1. Install Samsung Health and Health Connect on the Android phone.

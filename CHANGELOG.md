@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 - 2026-06-01
+
+- Added README badges, table of contents, Mermaid architecture diagram, and example output.
+- Added a static GitHub Pages-ready project page at `docs/index.html`.
+- Added a setup TL;DR for faster onboarding.
+
 ## 0.1.0 - 2026-06-01
 
 - Initial cleaned repository for `health-wearable-agent`.
