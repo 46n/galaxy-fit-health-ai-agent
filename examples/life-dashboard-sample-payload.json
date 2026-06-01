@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-06-01T08:30:00Z",
+  "app_version": "1.0.0",
+  "source": "health_connect",
+  "steps": [
+    {
+      "start_time": "2026-06-01T00:00:00Z",
+      "end_time": "2026-06-01T08:30:00Z",
+      "count": 1155
+    }
+  ],
+  "sleep": [
+    {
+      "start_time": "2026-05-31T23:10:00Z",
+      "end_time": "2026-06-01T07:49:00Z",
+      "duration_seconds": 31140
+    }
+  ],
+  "heart_rate": [
+    {
+      "samples": [
+        {
+          "time": "2026-06-01T08:00:00Z",
+          "beats_per_minute": 68
+        },
+        {
+          "time": "2026-06-01T08:15:00Z",
+          "beats_per_minute": 72
+        }
+      ]
+    }
+  ],
+  "oxygen_saturation": [
+    {
+      "time": "2026-06-01T08:10:00Z",
+      "percentage": 93
+    }
+  ]
+}

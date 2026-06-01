@@ -1,0 +1,30 @@
+# Secrets and local config
+.env
+.env.*
+!.env.example
+.clasp.json
+credentials.json
+token.json
+secrets.json
+script-properties.json
+
+# Logs
+*.log
+logs/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node tooling, if added later
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+coverage/
