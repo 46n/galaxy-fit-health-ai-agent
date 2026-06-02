@@ -12,6 +12,12 @@ script-properties.json
 *.log
 logs/
 
+# Python / ADK local files
+.venv/
+__pycache__/
+*.py[cod]
+.adk/
+
 # OS/editor
 .DS_Store
 Thumbs.db
