@@ -10,8 +10,50 @@ The project receives Health Connect data from an Android phone, parses the lates
 
 This is not medical software. It is a personal wellness automation for wearable data.
 
+## Visual Flow
+
+The project is easier to understand as a chain of tools:
+
+<table>
+  <tr>
+    <td align="center"><img src="https://cdn.simpleicons.org/samsung/1428A0" width="56" alt="Samsung logo"><br><strong>Galaxy Fit3</strong><br>wearable data</td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.simpleicons.org/samsung/1428A0" width="56" alt="Samsung logo"><br><strong>Samsung Health</strong><br>phone sync</td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.simpleicons.org/android/3DDC84" width="56" alt="Android logo"><br><strong>Health Connect</strong><br>permission layer</td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.simpleicons.org/android/3DDC84" width="56" alt="Android logo"><br><strong>Life Dashboard</strong><br>webhook JSON</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/google-apps-script/default.svg" width="56" alt="Google Apps Script logo"><br><strong>Apps Script</strong><br>parser + webhook</td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/openai.svg" width="56" alt="OpenAI logo"><br><strong>OpenAI</strong><br>message generation</td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.simpleicons.org/telegram/26A5E4" width="56" alt="Telegram logo"><br><strong>Telegram</strong><br>main output</td>
+    <td align="center">+</td>
+    <td align="center"><img src="https://cdn.simpleicons.org/discord/5865F2" width="56" alt="Discord logo"><br><strong>Discord</strong><br>optional output</td>
+  </tr>
+</table>
+
+The older prototype path also matters because it explains why the final design changed:
+
+<table>
+  <tr>
+    <td align="center"><img src="https://cdn.simpleicons.org/samsung/1428A0" width="52" alt="Samsung logo"><br><strong>Samsung Health</strong></td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.simpleicons.org/googledrive/4285F4" width="52" alt="Google Drive logo"><br><strong>Google Drive CSV</strong></td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/google-apps-script/default.svg" width="52" alt="Google Apps Script logo"><br><strong>Apps Script</strong></td>
+    <td align="center">-></td>
+    <td align="center"><img src="https://cdn.simpleicons.org/discord/5865F2" width="52" alt="Discord logo"><br><strong>Discord webhook</strong></td>
+  </tr>
+</table>
+
+That prototype worked, but Drive CSV sync and Discord webhooks were not smooth enough for a live check-in agent. The current version uses webhook JSON and Telegram as the main output.
+
 ## Contents
 
+- [Visual Flow](#visual-flow)
 - [Why This Exists](#why-this-exists)
 - [How The Program Works](#how-the-program-works)
 - [Architecture](#architecture)
