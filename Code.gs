@@ -4,14 +4,13 @@
  * Main pipeline:
  * Life Dashboard Companion -> Apps Script Web App -> OpenAI -> Telegram
  * Optional output:
- * Apps Script -> Discord Bot REST API
+ * Apps Script -> external Discord bridge/backend
  */
 
 const OPENAI_MODEL = "gpt-5.4-mini";
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
-const DISCORD_API_BASE_URL = "https://discord.com/api/v10";
 const TELEGRAM_MESSAGE_LIMIT = 3900;
-const DISCORD_MESSAGE_LIMIT = 1900;
+const DISCORD_BRIDGE_MESSAGE_LIMIT = 1900;
 
 // ---------------------------------------------------------------------------
 // Config helpers
@@ -42,16 +41,16 @@ function getWebhookSecret() {
   return getScriptProperty("WEBHOOK_SECRET", true);
 }
 
-function getDiscordBotConfig() {
+function getDiscordBridgeConfig() {
   return {
-    token: getScriptProperty("DISCORD_BOT_TOKEN", false),
-    channelId: getScriptProperty("DISCORD_CHANNEL_ID", false)
+    url: getScriptProperty("DISCORD_BRIDGE_URL", false),
+    secret: getScriptProperty("DISCORD_BRIDGE_SECRET", false)
   };
 }
 
-function isDiscordBotConfigured() {
-  const config = getDiscordBotConfig();
-  return Boolean(config.token && config.channelId);
+function isDiscordBridgeConfigured() {
+  const config = getDiscordBridgeConfig();
+  return Boolean(config.url);
 }
 
 // ---------------------------------------------------------------------------
@@ -85,8 +84,12 @@ function doPost(e) {
 
     sendTelegramMessage(message);
 
-    if (isDiscordBotConfigured()) {
-      sendDiscordBotMessage(message);
+    if (isDiscordBridgeConfigured()) {
+      try {
+        sendDiscordBridgeMessage(message, metrics);
+      } catch (bridgeError) {
+        Logger.log("Discord bridge failed but Telegram already sent: " + bridgeError);
+      }
     }
 
     return jsonResponse({
@@ -543,36 +546,40 @@ function sendTelegramMessage(message) {
 }
 
 // ---------------------------------------------------------------------------
-// Optional Discord bot sender
+// Optional Discord bridge sender
 // ---------------------------------------------------------------------------
 
-function sendDiscordBotMessage(message) {
-  const config = getDiscordBotConfig();
+function sendDiscordBridgeMessage(message, metrics) {
+  const config = getDiscordBridgeConfig();
 
-  if (!config.token || !config.channelId) {
-    Logger.log("Discord bot output skipped because it is not configured.");
+  if (!config.url) {
+    Logger.log("Discord bridge output skipped because DISCORD_BRIDGE_URL is not configured.");
     return;
   }
 
-  const url = DISCORD_API_BASE_URL + "/channels/" + config.channelId + "/messages";
+  const headers = {};
 
-  const response = UrlFetchApp.fetch(url, {
+  if (config.secret) {
+    headers["X-Discord-Bridge-Secret"] = config.secret;
+  }
+
+  const response = UrlFetchApp.fetch(config.url, {
     method: "post",
     contentType: "application/json",
-    headers: {
-      Authorization: "Bot " + config.token
-    },
+    headers: headers,
     payload: JSON.stringify({
-      content: truncateMessage(message, DISCORD_MESSAGE_LIMIT)
+      source: "health-wearable-agent",
+      content: truncateMessage(message, DISCORD_BRIDGE_MESSAGE_LIMIT),
+      metrics: metrics || null
     }),
     muteHttpExceptions: true
   });
 
   const status = response.getResponseCode();
-  Logger.log("Discord bot HTTP Status: " + status);
+  Logger.log("Discord bridge HTTP Status: " + status);
 
   if (status < 200 || status >= 300) {
-    throw new Error("Discord Bot API failed with HTTP " + status + ": " + response.getContentText());
+    throw new Error("Discord bridge failed with HTTP " + status + ": " + response.getContentText());
   }
 }
 
@@ -629,8 +636,10 @@ function testTelegram() {
   sendTelegramMessage("health-wearable-agent Telegram test message");
 }
 
-function testDiscordBot() {
-  sendDiscordBotMessage("health-wearable-agent Discord bot test message");
+function testDiscordBridge() {
+  sendDiscordBridgeMessage("health-wearable-agent Discord bridge test message", {
+    source: "manual_test"
+  });
 }
 
 function testOpenAI() {

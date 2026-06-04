@@ -10,7 +10,7 @@ Galaxy Fit3
   -> Health Connect
   -> connector app/exporter
   -> backend or Apps Script
-  -> Telegram / Discord / AI agent
+  -> Telegram / optional external Discord bridge / AI agent
 ```
 
 The first prototype used Health Sync to export Samsung Health data into Google Drive CSV files. Google Apps Script read those CSV files, calculated steps, average heart rate, and sleep, then sent messages to Discord or Telegram. Discord webhooks later hit rate-limit behavior, so Telegram became the more reliable output.
@@ -47,6 +47,6 @@ Wellness check only — not medical advice.
 
 The agent must stay within wellness guidance. It must not diagnose, prescribe medication, provide treatment plans, or claim wearable data is perfectly accurate. If blood oxygen is low, it should calmly suggest rechecking with a proper pulse oximeter. If symptoms are serious, unusual, or urgent, it should suggest getting medical help.
 
-Optional future output is Discord through the Discord Bot REST API. Discord webhooks are intentionally not used in the cleaned version.
+Optional Discord output is handled through an external bridge/backend. Direct Apps Script -> Discord API calls should be treated as blocked/unreliable because testing showed HTTP 403 code 40333 from Google Apps Script even when the same Discord bot token and channel ID work from a PC.
 
 Important security history: early prototype values included exposed tokens and secrets in screenshots/chat. Those values should be treated as compromised and rotated. This repository stores only property names and never real secrets.

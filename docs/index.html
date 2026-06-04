@@ -354,7 +354,8 @@ flowchart LR
     D --> E[Apps Script Web App]
     E --> F[OpenAI Responses API]
     F --> G[Telegram]
-    E -. optional .-> H[Discord Bot REST API]
+    E -. optional .-> H[External Discord Bridge]
+    H -.-> I[Discord Bot REST API]
         </pre>
       </div>
     </section>
@@ -372,7 +373,7 @@ flowchart LR
         </article>
         <article class="card">
           <h3>Safe outputs</h3>
-          <p>Sends Telegram by default and can optionally post through a Discord bot without using webhooks.</p>
+          <p>Sends Telegram by default and can optionally hand off to an external Discord bridge/backend.</p>
         </article>
       </div>
     </section>

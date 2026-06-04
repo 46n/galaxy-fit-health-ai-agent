@@ -6,7 +6,7 @@
 
 A personal wearable-health AI agent that turns Galaxy Fit3 / Samsung Health data into a short, casual wellness check-in message.
 
-The project receives Health Connect data from an Android phone, parses the latest wearable metrics in Google Apps Script, asks OpenAI to write a friendly check-in, and sends the final message to Telegram. Optional Discord output is supported through the Discord Bot REST API.
+The project receives Health Connect data from an Android phone, parses the latest wearable metrics in Google Apps Script, asks OpenAI to write a friendly check-in, and sends the final message to Telegram. Optional Discord output should be handled through an external bridge/backend because direct Apps Script calls to the Discord API can be blocked or unreliable.
 
 This is not medical software. It is a personal wellness automation for wearable data.
 
@@ -31,7 +31,7 @@ The project is easier to understand as a chain of tools:
     <td align="center">-></td>
     <td align="center"><img src="https://cdn.simpleicons.org/telegram/26A5E4" width="56" alt="Telegram logo"><br><strong>Telegram</strong><br>main output</td>
     <td align="center">+</td>
-    <td align="center"><img src="https://cdn.simpleicons.org/discord/5865F2" width="56" alt="Discord logo"><br><strong>Discord</strong><br>optional output</td>
+    <td align="center"><img src="https://cdn.simpleicons.org/discord/5865F2" width="56" alt="Discord logo"><br><strong>Discord Bridge</strong><br>optional backend</td>
   </tr>
 </table>
 
@@ -96,7 +96,7 @@ Google Apps Script was chosen because it is lightweight, easy to deploy as a web
 8. The metrics are sent to the OpenAI Responses API with strict message-style instructions.
 9. The AI output is normalized so it stays as one compact paragraph and ends with the required safety note.
 10. The final message is sent to Telegram.
-11. If Discord is configured, the same message is also sent through the Discord Bot REST API.
+11. If `DISCORD_BRIDGE_URL` is configured, Apps Script sends the same message to that external bridge/backend. The bridge is responsible for talking to Discord.
 
 If OpenAI fails, the program still sends a rule-based fallback summary to Telegram. This keeps the automation useful even when the AI request fails.
 
@@ -110,7 +110,8 @@ flowchart LR
     D --> E[Apps Script Web App]
     E --> F[OpenAI Responses API]
     F --> G[Telegram]
-    E -. optional .-> H[Discord Bot REST API]
+    E -. optional .-> H[External Discord Bridge]
+    H -.-> I[Discord Bot REST API]
 ```
 
 ## What The Apps Script Does
@@ -178,11 +179,11 @@ That worked as a prototype, but it was not ideal for a live agent because file s
 
 Solution: replace CSV polling with Life Dashboard Companion webhook JSON. This made the pipeline more direct and better suited for live check-ins.
 
-### Discord webhooks were unreliable
+### Direct Discord from Apps Script was unreliable
 
-Discord webhook output hit reliability/rate-limit behavior during the prototype.
+Discord webhook output hit reliability/rate-limit behavior during the prototype. Later testing showed the Discord bot works from a PC with the Discord Bot REST API, but the same bot token and channel ID fail from Google Apps Script with HTTP 403 code 40333.
 
-Solution: Telegram became the primary output. Discord is still optional, but it uses the Discord Bot REST API instead of webhooks.
+Solution: Telegram remains the primary Apps Script output. Discord is optional through an external bridge/backend, not direct Apps Script -> Discord API calls.
 
 ### AI output needed strict formatting
 
@@ -222,16 +223,27 @@ Telegram is the primary output. The generated message is:
 - Framed as a live check-in, not a final daily report
 - Ended with the required medical safety note
 
-## Optional Discord Bot Output
+## Optional Discord Bridge Output
 
-Discord webhooks are intentionally not used because they were unreliable in the original prototype. Optional Discord output uses the Discord Bot REST API:
+Direct Apps Script -> Discord API calls should be treated as blocked/unreliable because they can fail with HTTP 403 code 40333 even when the same bot token and channel ID work from a PC.
 
-```text
-POST https://discord.com/api/v10/channels/{channelId}/messages
-Authorization: Bot <token>
+Optional Discord output should go through an external bridge/backend. Apps Script sends a JSON payload to `DISCORD_BRIDGE_URL`, and that backend sends to Discord using its own Discord bot token and channel ID.
+
+Expected bridge request:
+
+```json
+{
+  "source": "health-wearable-agent",
+  "content": "Telegram-ready wellness message",
+  "metrics": {
+    "steps": 6240,
+    "avg_heart_rate": 68,
+    "sleep_hours": 7.8
+  }
+}
 ```
 
-If `DISCORD_BOT_TOKEN` and `DISCORD_CHANNEL_ID` are not configured, Discord sending is skipped.
+If `DISCORD_BRIDGE_SECRET` is configured, Apps Script sends it in the `X-Discord-Bridge-Secret` header. If `DISCORD_BRIDGE_URL` is not configured, Discord sending is skipped.
 
 ## ADK Test Agent
 
@@ -262,7 +274,7 @@ Required Script Properties:
 
 Optional Script Properties:
 
-- `DISCORD_BOT_TOKEN`
-- `DISCORD_CHANNEL_ID`
+- `DISCORD_BRIDGE_URL`
+- `DISCORD_BRIDGE_SECRET`
 
 See [SECURITY.md](SECURITY.md) before deploying.

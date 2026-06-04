@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Replaced direct Apps Script -> Discord Bot REST API output with optional external Discord bridge/backend output.
+- Documented Google Apps Script Discord HTTP 403 code 40333 behavior and kept Telegram as the primary Apps Script output.
+
 ## 0.1.1 - 2026-06-01
 
 - Added README badges, table of contents, Mermaid architecture diagram, and example output.

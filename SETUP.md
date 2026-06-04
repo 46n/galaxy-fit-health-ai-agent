@@ -44,11 +44,11 @@ TELEGRAM_CHAT_ID
 WEBHOOK_SECRET
 ```
 
-Add these only if Discord bot output is wanted:
+Add these only if optional Discord bridge output is wanted:
 
 ```text
-DISCORD_BOT_TOKEN
-DISCORD_CHANNEL_ID
+DISCORD_BRIDGE_URL
+DISCORD_BRIDGE_SECRET
 ```
 
 Use `examples/script-properties.example.json` as a reference for names only. Do not paste real values into this repository.
@@ -78,16 +78,20 @@ Use `examples/script-properties.example.json` as a reference for names only. Do 
 2. Store it as `OPENAI_API_KEY` in Apps Script Script Properties.
 3. Run `testOpenAI()` in Apps Script.
 
-## 8. Optional Discord Bot
+## 8. Optional Discord Bridge
 
-1. Create a Discord application.
-2. Add a bot to the application.
-3. Invite the bot to your server with permission to send messages.
-4. Copy the bot token into `DISCORD_BOT_TOKEN`.
-5. Enable Developer Mode in Discord and copy the channel ID into `DISCORD_CHANNEL_ID`.
-6. Run `testDiscordBot()` in Apps Script.
+Direct Apps Script -> Discord Bot REST API calls should be treated as blocked/unreliable. Testing showed HTTP 403 code 40333 from Google Apps Script even when the same bot token and channel ID work from a PC.
 
-This project uses the Discord Bot REST API, not Discord webhooks.
+Use an external backend as the Discord bridge instead:
+
+1. Host a small backend endpoint that accepts JSON from Apps Script.
+2. Store the Discord bot token and channel ID in that backend, not in Apps Script.
+3. Configure the backend to send messages to Discord using the Discord Bot REST API.
+4. Store the backend endpoint URL as `DISCORD_BRIDGE_URL`.
+5. Optionally store a shared bridge secret as `DISCORD_BRIDGE_SECRET`.
+6. Run `testDiscordBridge()` in Apps Script.
+
+Apps Script sends the bridge secret in the `X-Discord-Bridge-Secret` header when it is configured.
 
 ## 9. Test Life Dashboard
 
@@ -103,5 +107,6 @@ This project uses the Discord Bot REST API, not Discord webhooks.
 - `Telegram API failed`: Check bot token, chat ID, and whether you sent `/start` to the bot.
 - No sleep data: Confirm Life Dashboard has Health Connect sleep permission and is sending `sleep`.
 - No oxygen data: Confirm Life Dashboard has oxygen saturation permission and is sending `oxygen_saturation`.
-- Discord skipped: `DISCORD_BOT_TOKEN` and `DISCORD_CHANNEL_ID` are optional and must both be present.
+- Discord skipped: `DISCORD_BRIDGE_URL` is optional and must be present for bridge output.
+- Discord bridge failed: Check the external bridge logs, `DISCORD_BRIDGE_URL`, and `DISCORD_BRIDGE_SECRET`.
 - OpenAI failed but Telegram still sent: The fallback rule-based summary is working as intended.

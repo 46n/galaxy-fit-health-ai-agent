@@ -7,8 +7,8 @@ This repository must not contain real secrets.
 - OpenAI API keys
 - Telegram bot tokens
 - Telegram chat IDs
-- Discord bot tokens
-- Discord webhook URLs
+- Discord bridge secrets
+- Discord bot tokens or webhook URLs in any external bridge/backend
 - Apps Script webhook secrets
 - Google Drive folder IDs
 - `.clasp.json` files tied to a real Apps Script project
@@ -33,8 +33,8 @@ WEBHOOK_SECRET
 Optional:
 
 ```text
-DISCORD_BOT_TOKEN
-DISCORD_CHANNEL_ID
+DISCORD_BRIDGE_URL
+DISCORD_BRIDGE_SECRET
 ```
 
 ## Rotate Exposed Secrets
@@ -45,8 +45,9 @@ Rotate:
 
 - Telegram bot token through BotFather
 - OpenAI API key through the OpenAI platform
-- Discord bot token through the Discord Developer Portal
-- Discord webhook URL by deleting and recreating the webhook if one was used
+- Discord bridge secret in Apps Script and the external bridge/backend
+- Discord bot token through the Discord Developer Portal if the external bridge/backend uses one
+- Discord webhook URL by deleting and recreating the webhook if an external bridge/backend uses one
 - Apps Script `WEBHOOK_SECRET`
 
 ## Webhook Secret
